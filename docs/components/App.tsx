@@ -1,4 +1,4 @@
-import React, { Component, ChangeEvent, MouseEvent } from 'react';
+import React, { Component, ChangeEvent, MouseEvent } from "react";
 import {
   Menu,
   Item,
@@ -7,20 +7,32 @@ import {
   contextMenu,
   theme,
   animation
-} from '../../src';
-import Table from './Table';
-import Select from './Select';
-import { BuiltInTheme } from '../../src/utils/styles';
-import { MenuItemEventHandler } from '../../src/types';
+} from "../../src";
+import Table from "./Table";
+import Select from "./Select";
+import { BuiltInTheme } from "../../src/utils/styles";
+import { MenuItemEventHandler } from "../../src/types";
+
+// import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
+// import Paper from "@material-ui/core/Paper";
+// import Typography from "@material-ui/core/Typography";
+
+// const useStyles = makeStyles((theme: Theme) =>
+//   createStyles({
+//     root: {
+//       padding: theme.spacing(3, 2)
+//     }
+//   })
+// );
 
 const selector = {
-  events: ['onContextMenu', 'onClick', 'onDoubleClick'],
+  events: ["onContextMenu", "onClick", "onDoubleClick"],
   themes: [
-    'none',
+    "none",
     ...Object.keys(theme).map(k => theme[k as keyof BuiltInTheme])
   ],
   animations: [
-    'none',
+    "none",
     ...Object.keys(animation).map(k => animation[k as keyof typeof animation])
   ]
 };
@@ -67,12 +79,12 @@ class App extends Component {
   canvasRef!: HTMLCanvasElement;
 
   componentDidMount() {
-    const ctx = this.canvasRef.getContext('2d')!;
+    const ctx = this.canvasRef.getContext("2d")!;
     ctx.fillRect(square.x, square.y, square.width, square.height);
-    ctx.font = '16px arial';
-    ctx.fillStyle = 'black';
-    ctx.fillText('only the black box', 10, 20);
-    ctx.fillText('trigger the event', 10, 40);
+    ctx.font = "16px arial";
+    ctx.fillStyle = "black";
+    ctx.fillText("only the black box", 10, 20);
+    ctx.fillText("trigger the event", 10, 40);
   }
 
   handleMenuItem = (payload: MenuItemEventHandler) => {
@@ -87,7 +99,7 @@ class App extends Component {
 
   handleClick = (e: MouseEvent) => {
     e.preventDefault();
-    if ((e.target as HTMLElement).tagName === 'CANVAS') {
+    if ((e.target as HTMLElement).tagName === "CANVAS") {
       const rect = this.canvasRef.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -118,6 +130,8 @@ class App extends Component {
   };
 
   render() {
+    // const classes = useStyles({});
+
     return (
       <main>
         <div className="settings-container">
@@ -168,7 +182,7 @@ class App extends Component {
               ref={(ref: HTMLCanvasElement) => (this.canvasRef = ref)}
               width="200"
               height="200"
-              style={{ border: '1px solid red' }}
+              style={{ border: "1px solid red" }}
             >
               this is a canvas
             </canvas>
