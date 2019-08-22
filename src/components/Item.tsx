@@ -1,14 +1,14 @@
-import React, { Component, ReactNode } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import React, { ReactNode } from "react";
+// import PropTypes from 'prop-types';
+import cx from "classnames";
 
-import { styles } from '../utils/styles';
+import { styles } from "../utils/styles";
 import {
   MenuItemEventHandler,
   TriggerEvent,
   StyleProps,
   InternalProps
-} from '../types';
+} from "../types";
 
 export interface ItemProps extends StyleProps, InternalProps {
   /**
@@ -36,65 +36,79 @@ export interface ItemProps extends StyleProps, InternalProps {
 
 const noop = () => {};
 
-class Item extends Component<ItemProps> {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    data: PropTypes.object,
-    disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-    onClick: PropTypes.func,
-    nativeEvent: PropTypes.object,
-    propsFromTrigger: PropTypes.object,
-    className: PropTypes.string,
-    style: PropTypes.object
-  };
+export function Item({
+  disabled = false,
+  onClick = noop,
+  nativeEvent,
+  propsFromTrigger,
+  data,
+  className,
+  style,
+  children
+}: ItemProps) {
+  // static propTypes = {
+  //   children: PropTypes.node.isRequired,
+  //   data: PropTypes.object,
+  //   disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  //   onClick: PropTypes.func,
+  //   nativeEvent: PropTypes.object,
+  //   propsFromTrigger: PropTypes.object,
+  //   className: PropTypes.string,
+  //   style: PropTypes.object
+  // };
 
-  static defaultProps = {
-    disabled: false,
-    onClick: noop
-  };
+  // static defaultProps = {
+  //   disabled: false,
+  //   onClick: noop
+  // };
 
-  isDisabled: boolean;
+  let isDisabled =
+    typeof disabled === "function"
+      ? disabled({
+          event: nativeEvent as TriggerEvent,
+          props: { ...propsFromTrigger, ...data }
+        })
+      : disabled;
 
-  constructor(props: ItemProps) {
-    super(props);
-    const { disabled, nativeEvent, propsFromTrigger, data } = this.props;
+  // constructor(props: ItemProps) {
+  // super(props);
+  // const { disabled, nativeEvent, propsFromTrigger, data } = this.props;
 
-    this.isDisabled =
-      typeof disabled === 'function'
-        ? disabled({
-            event: nativeEvent as TriggerEvent,
-            props: { ...propsFromTrigger, ...data }
-          })
-        : disabled;
-  }
+  //   this.isDisabled =
+  //     typeof disabled === 'function'
+  //       ? disabled({
+  //           event: nativeEvent as TriggerEvent,
+  //           props: { ...propsFromTrigger, ...data }
+  //         })
+  //       : disabled;
+  // }
 
-  handleClick = (e: React.MouseEvent) => {
-    this.isDisabled
+  const handleClick = (e: React.MouseEvent) => {
+    isDisabled
       ? e.stopPropagation()
-      : this.props.onClick({
-          event: this.props.nativeEvent as TriggerEvent,
-          props: { ...this.props.propsFromTrigger, ...this.props.data }
+      : onClick({
+          event: nativeEvent as TriggerEvent,
+          props: { ...propsFromTrigger, ...data }
         });
   };
 
-  render() {
-    const { className, style, children } = this.props;
+  // return {
+  // const { className, style, children } = this.props;
 
-    const cssClasses = cx(styles.item, className, {
-      [`${styles.itemDisabled}`]: this.isDisabled
-    });
+  const cssClasses = cx(styles.item, className, {
+    [`${styles.itemDisabled}`]: isDisabled
+  });
 
-    return (
-      <div
-        className={cssClasses}
-        style={style}
-        onClick={this.handleClick}
-        role="presentation"
-      >
-        <div className={styles.itemContent}>{children}</div>
-      </div>
-    );
-  }
+  return (
+    <div
+      className={cssClasses}
+      style={style}
+      onClick={handleClick}
+      role="presentation"
+    >
+      <div className={styles.itemContent}>{children}</div>
+    </div>
+  );
 }
 
-export { Item };
+// export { Item };
