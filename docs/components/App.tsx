@@ -1,200 +1,223 @@
-import React, { Component, ChangeEvent, MouseEvent } from "react";
-import {
-  Menu,
-  Item,
-  Separator,
-  Submenu,
-  contextMenu,
-  theme,
-  animation
-} from "../../src";
-import Table from "./Table";
-import Select from "./Select";
-import { BuiltInTheme } from "../../src/utils/styles";
-import { MenuItemEventHandler } from "../../src/types";
+import React from "react";
 
-// import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
-// import Paper from "@material-ui/core/Paper";
-// import Typography from "@material-ui/core/Typography";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import Hidden from "@material-ui/core/Hidden";
+import IconButton from "@material-ui/core/IconButton";
+import InboxIcon from "@material-ui/icons/MoveToInbox";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListSubheader from "@material-ui/core/ListSubheader";
+import MailIcon from "@material-ui/icons/Mail";
+import MenuIcon from "@material-ui/icons/Menu";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+// import { VirtualList, ItemStyle } from "../../src";
+import VolumeDown from "@material-ui/icons/VolumeDown";
+import VolumeUp from "@material-ui/icons/VolumeUp";
+import Example1 from "./Example1";
+import Example2 from "./Example2";
+import Example3 from "./Example3";
+import Example4 from "./Example4";
+import Example5 from "./Example5";
 
-// const useStyles = makeStyles((theme: Theme) =>
-//   createStyles({
-//     root: {
-//       padding: theme.spacing(3, 2)
-//     }
-//   })
-// );
-
-const selector = {
-  events: ["onContextMenu", "onClick", "onDoubleClick"],
-  themes: [
-    "none",
-    ...Object.keys(theme).map(k => theme[k as keyof BuiltInTheme])
-  ],
-  animations: [
-    "none",
-    ...Object.keys(animation).map(k => animation[k as keyof typeof animation])
-  ]
-};
-
-const square = {
-  x: 50,
-  y: 50,
-  width: 100,
-  height: 100
-};
-
-const menuId = 1;
-const MyAwesomeMenu: React.SFC<{
-  theme: string;
-  animation: string;
-  onClick: (p: any) => void;
-}> = ({ theme, animation, onClick }) => (
-  <Menu id={menuId} theme={theme} animation={animation}>
-    <Item onClick={onClick}>
-      <span role="role">💩</span>
-      Foo
-    </Item>
-    <Item onClick={onClick}>Ipsum</Item>
-    <Item disabled>Sit</Item>
-    {null}
-    <Separator />
-    <Item disabled>Dolor</Item>
-    <Separator />
-    <Submenu label="Foobar">
-      {null}
-      <Item onClick={onClick}>Bar</Item>
-    </Submenu>
-  </Menu>
-);
-
-class App extends Component {
-  state = {
-    event: selector.events[0],
-    theme: selector.themes[0],
-    animation: selector.animations[0],
-    payload: {}
-  };
-
-  canvasRef!: HTMLCanvasElement;
-
-  componentDidMount() {
-    const ctx = this.canvasRef.getContext("2d")!;
-    ctx.fillRect(square.x, square.y, square.width, square.height);
-    ctx.font = "16px arial";
-    ctx.fillStyle = "black";
-    ctx.fillText("only the black box", 10, 20);
-    ctx.fillText("trigger the event", 10, 40);
-  }
-
-  handleMenuItem = (payload: MenuItemEventHandler) => {
-    const { clientX, clientY } = payload.event;
-    this.setState({
-      payload: {
-        event: { clientX, clientY },
-        props: payload.props
-      }
-    });
-  };
-
-  handleClick = (e: MouseEvent) => {
-    e.preventDefault();
-    if ((e.target as HTMLElement).tagName === "CANVAS") {
-      const rect = this.canvasRef.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const isColliding =
-        x >= square.x &&
-        x <= square.x + square.width &&
-        y >= square.y &&
-        y <= square.y + square.height;
-
-      if (!isColliding) {
-        return;
-      }
-    }
-
-    contextMenu.show({
-      id: menuId,
-      event: e,
-      props: {
-        now: Date.now()
-      }
-    });
-  };
-
-  handleSelector = (e: ChangeEvent<HTMLSelectElement>) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
-  };
-
-  render() {
-    // const classes = useStyles({});
-
-    return (
-      <main>
-        <div className="settings-container">
-          <ul>
-            <li>
-              <label htmlFor="event">Event:</label>
-              <Select
-                name="event"
-                value={this.state.event}
-                data={selector.events}
-                onChange={this.handleSelector}
-              />
-            </li>
-            <li>
-              <label htmlFor="theme">Theme:</label>
-              <Select
-                name="theme"
-                value={this.state.theme}
-                data={selector.themes}
-                onChange={this.handleSelector}
-              />
-            </li>
-            <li>
-              <label htmlFor="animation">Animation:</label>
-              <Select
-                name="animation"
-                value={this.state.animation}
-                data={selector.animations}
-                onChange={this.handleSelector}
-              />
-            </li>
-          </ul>
-          <pre>{JSON.stringify(this.state.payload, null, 2)}</pre>
-        </div>
-        <hr />
-        <div className="boxes-container">
-          <div
-            className="box"
-            {...{ [`${this.state.event}`]: this.handleClick }}
-          >
-            event is triggered everywhere in the box
-          </div>
-          <hr />
-          <div>
-            <div>This is a canvas</div>
-            <canvas
-              {...{ [`${this.state.event}`]: this.handleClick }}
-              ref={(ref: HTMLCanvasElement) => (this.canvasRef = ref)}
-              width="200"
-              height="200"
-              style={{ border: "1px solid red" }}
-            >
-              this is a canvas
-            </canvas>
-          </div>
-          <hr />
-          <Table event={this.state.event} handleEvent={this.handleClick} />
-        </div>
-
-        <MyAwesomeMenu {...this.state} onClick={this.handleMenuItem} />
-      </main>
-    );
-  }
+enum View {
+  Example1,
+  Example2
 }
 
-export default App;
+const drawerWidth = 240;
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: "flex"
+  },
+  drawer: {
+    [theme.breakpoints.up("sm")]: {
+      width: drawerWidth,
+      flexShrink: 0
+    }
+  },
+  appBar: {
+    marginLeft: drawerWidth,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(100% - ${drawerWidth}px)`
+    }
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up("sm")]: {
+      display: "none"
+    }
+  },
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(2)
+  },
+  title: {
+    padding: 16
+  }
+}));
+
+type Props = {};
+export default function ResponsiveDrawer(props: Props) {
+  const basicSetup = [
+    "Elements of equal height",
+    "Variable heights",
+    "Horizontal list"
+  ];
+
+  const controlledProps = ["Scroll to index", "Controlled scroll offset"];
+
+  const labels = basicSetup.concat(controlledProps);
+
+  const examples = [
+    <Example1 />,
+    <Example2 />,
+    <Example3 />,
+    <Example4 />,
+    <Example5 />
+  ];
+
+  // const { container } = props;
+  const classes = useStyles({});
+  const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const [view, setView] = React.useState(View.Example1);
+
+  function handleDrawerToggle() {
+    setMobileOpen(!mobileOpen);
+  }
+
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+
+  function handleListItemClick(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number
+  ): void {
+    setSelectedIndex(index);
+  }
+
+  const drawer = (
+    <div>
+      <div className={classes.toolbar}>
+        <div className={classes.title}>
+          <Typography variant="h6" noWrap>
+            React Virtual List
+          </Typography>
+        </div>
+      </div>
+      <Divider />
+      <List>
+        <ListSubheader>
+          <Typography variant="h6" noWrap>
+            Basic setup
+          </Typography>
+        </ListSubheader>
+        {basicSetup.map((text, index) => (
+          <ListItem
+            button
+            key={text}
+            selected={selectedIndex === index}
+            onClick={event => handleListItemClick(event, index)}
+          >
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        <ListSubheader>
+          <Typography variant="h6" noWrap>
+            Controlled props
+          </Typography>
+        </ListSubheader>
+        {controlledProps.map((text, index) => (
+          <ListItem
+            button
+            key={text}
+            selected={selectedIndex === index + basicSetup.length}
+            onClick={event =>
+              handleListItemClick(event, index + basicSetup.length)
+            }
+          >
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+    </div>
+  );
+
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="fixed" className={classes.appBar}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="Open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" className={classes.title} noWrap>
+            {labels[selectedIndex]}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <nav className={classes.drawer} aria-label="Mailbox folders">
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Hidden smUp implementation="css">
+          <Drawer
+            variant="temporary"
+            anchor={theme.direction === "rtl" ? "right" : "left"}
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper
+            }}
+            ModalProps={{
+              keepMounted: true // Better open performance on mobile.
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+        <Hidden xsDown implementation="css">
+          <Drawer
+            classes={{
+              paper: classes.drawerPaper
+            }}
+            variant="permanent"
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+      </nav>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        {examples[selectedIndex]}
+      </main>
+    </div>
+  );
+}
+
+// ResponsiveDrawer.propTypes = {
+//   // Injected by the documentation to work in an iframe.
+//   // You won't need it on your project.
+//   container: PropTypes.object,
+// };
