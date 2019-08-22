@@ -1,16 +1,17 @@
-import React, { Component, ReactNode, SyntheticEvent } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import React, { ReactNode, SyntheticEvent } from "react";
+// import PropTypes from 'prop-types';
+import cx from "classnames";
 
-import { cloneItem } from './cloneItem';
-import { styles } from '../utils/styles';
+import { cloneItem } from "./cloneItem";
+import { styles } from "../utils/styles";
 import {
   MenuItemEventHandler,
   TriggerEvent,
   StyleProps,
   InternalProps
-} from '../types';
+} from "../types";
 
+const { useState, useEffect, useRef } = React;
 export interface SubMenuProps extends StyleProps, InternalProps {
   /**
    * Any valid node that can be rendered
@@ -40,104 +41,113 @@ interface SubMenuState {
   bottom?: string | number;
 }
 
-class Submenu extends Component<SubMenuProps, SubMenuState> {
-  static propTypes = {
-    label: PropTypes.node.isRequired,
-    children: PropTypes.node.isRequired,
-    nativeEvent: PropTypes.object,
-    arrow: PropTypes.node,
-    disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
-    className: PropTypes.string,
-    style: PropTypes.object
-  };
-  static defaultProps = {
-    arrow: '▶',
-    disabled: false,
-    nativeEvent: {} as TriggerEvent
-  };
+export function Submenu({
+  arrow = "▶",
+  disabled = false,
+  nativeEvent = {} as TriggerEvent,
+  style,
+  className,
+  propsFromTrigger,
+  label,
+  children
+}: SubMenuProps) {
+  // static propTypes = {
+  //   label: PropTypes.node.isRequired,
+  //   children: PropTypes.node.isRequired,
+  //   nativeEvent: PropTypes.object,
+  //   arrow: PropTypes.node,
+  //   disabled: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  //   className: PropTypes.string,
+  //   style: PropTypes.object
+  // };
+  // static defaultProps = {
+  //   arrow: '▶',
+  //   disabled: false,
+  //   nativeEvent: {} as TriggerEvent
+  // };
 
-  state = {
-    left: '100%',
+  const [state, setState] = useState<SubMenuState>({
+    left: "100%",
     top: 0,
-    bottom: 'initial'
-  };
+    bottom: "initial"
+  });
 
-  menu!: HTMLElement;
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  setRef = (ref: HTMLDivElement) => {
-    this.menu = ref;
-  };
+  // setRef = (ref: HTMLDivElement) => {
+  //   this.menu = ref;
+  // };
 
-  componentDidMount() {
+  // componentDidMount() {
+  useEffect(() => {
     const { innerWidth, innerHeight } = window;
-    const rect = this.menu.getBoundingClientRect();
+    const rect = menuRef.current!.getBoundingClientRect();
     const style: SubMenuState = {};
 
     if (rect.right < innerWidth) {
-      style.left = '100%';
+      style.left = "100%";
       style.right = undefined;
     } else {
-      style.right = '100%';
+      style.right = "100%";
       style.left = undefined;
     }
 
     if (rect.bottom > innerHeight) {
       style.bottom = 0;
-      style.top = 'initial';
+      style.top = "initial";
     } else {
-      style.bottom = 'initial';
+      style.bottom = "initial";
       style.top = 0;
     }
 
-    this.setState(style);
-  }
+    setState({ ...state, ...style });
+  }, []);
 
-  handleClick(e: SyntheticEvent) {
+  const handleClick = (e: SyntheticEvent) => {
     e.stopPropagation();
-  }
+  };
 
-  render() {
-    const {
-      arrow,
-      disabled,
-      className,
-      style,
-      label,
-      nativeEvent,
-      children,
-      propsFromTrigger
-    } = this.props;
+  // render() {
+  // const {
+  //   arrow,
+  //   disabled,
+  //   className,
+  //   style,
+  //   label,
+  //   nativeEvent,
+  //   children,
+  //   propsFromTrigger
+  // } = this.props;
 
-    const cssClasses = cx(styles.item, className, {
-      [`${styles.itemDisabled}`]:
-        typeof disabled === 'function'
-          ? disabled({
-              event: nativeEvent as TriggerEvent,
-              props: { ...propsFromTrigger }
-            })
-          : disabled
-    });
+  const cssClasses = cx(styles.item, className, {
+    [`${styles.itemDisabled}`]:
+      typeof disabled === "function"
+        ? disabled({
+            event: nativeEvent as TriggerEvent,
+            props: { ...propsFromTrigger }
+          })
+        : disabled
+  });
 
-    const submenuStyle = {
-      ...style,
-      ...this.state
-    };
+  const submenuStyle = {
+    ...style,
+    ...state
+  };
 
-    return (
-      <div className={cssClasses} role="presentation">
-        <div className={styles.itemContent} onClick={this.handleClick}>
-          {label}
-          <span className={styles.submenuArrow}>{arrow}</span>
-        </div>
-        <div className={styles.submenu} ref={this.setRef} style={submenuStyle}>
-          {cloneItem(children, {
-            propsFromTrigger,
-            nativeEvent: nativeEvent as TriggerEvent
-          })}
-        </div>
+  return (
+    <div className={cssClasses} role="presentation">
+      <div className={styles.itemContent} onClick={handleClick}>
+        {label}
+        <span className={styles.submenuArrow}>{arrow}</span>
       </div>
-    );
-  }
+      <div className={styles.submenu} ref={menuRef} style={submenuStyle}>
+        {cloneItem(children, {
+          propsFromTrigger,
+          nativeEvent: nativeEvent as TriggerEvent
+        })}
+      </div>
+    </div>
+  );
 }
 
-export { Submenu };
+// export { Submenu };
