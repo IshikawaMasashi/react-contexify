@@ -24,14 +24,14 @@ export interface ItemProps extends StyleProps, InternalProps {
   /**
    * Disable or not the `Item`. If a function is used, a boolean must be returned
    */
-  disabled: boolean | ((args: MenuItemEventHandler) => boolean);
+  disabled?: boolean | ((args: MenuItemEventHandler) => boolean);
 
   /**
    * Callback when the current `Item` is clicked. The callback give you access to the current event and also the data passed
    * to the `Item`.
    * `({ event, props }) => ...`
    */
-  onClick: (args: MenuItemEventHandler) => any;
+  onClick?: (args: MenuItemEventHandler) => any;
 }
 
 const noop = () => {};
