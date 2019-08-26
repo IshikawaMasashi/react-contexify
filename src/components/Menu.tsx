@@ -1,17 +1,16 @@
 /* global: window */
-import React, { ReactNode } from "react";
-// import PropTypes from 'prop-types';
-import cx from "classnames";
+import React, { Component, ReactNode } from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
 
-import { cloneItem } from "./cloneItem";
-import { Portal } from "./Portal";
+import { cloneItem } from './cloneItem';
+import { Portal } from './Portal';
 
-import { HIDE_ALL, DISPLAY_MENU } from "../utils/actions";
-import { styles } from "../utils/styles";
-import { eventManager } from "../utils/eventManager";
-import { TriggerEvent, StyleProps, MenuId } from "../types";
+import { HIDE_ALL, DISPLAY_MENU } from '../utils/actions';
+import { styles } from '../utils/styles';
+import { eventManager } from '../utils/eventManager';
+import { TriggerEvent, StyleProps, MenuId } from '../types';
 
-const { useState, useEffect, useRef } = React;
 const KEY = {
   ENTER: 13,
   ESC: 27,
@@ -57,34 +56,25 @@ export interface MenuProps extends StyleProps {
   onHidden?: () => void;
 }
 
-// interface MenuState {
-//   x: number;
-//   y: number;
-//   visible: boolean;
-//   nativeEvent: TriggerEvent;
-//   propsFromTrigger: object;
-// }
+interface MenuState {
+  x: number;
+  y: number;
+  visible: boolean;
+  nativeEvent: TriggerEvent;
+  propsFromTrigger: object;
+}
 
-export function Menu({
-  animation,
-  children,
-  className,
-  id,
-  onHidden,
-  onShown,
-  style,
-  theme
-}: MenuProps) {
-  // static propTypes = {
-  //   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  //   children: PropTypes.node.isRequired,
-  //   theme: PropTypes.string,
-  //   animation: PropTypes.string,
-  //   className: PropTypes.string,
-  //   style: PropTypes.object
-  // };
+class Menu extends Component<MenuProps, MenuState> {
+  static propTypes = {
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    children: PropTypes.node.isRequired,
+    theme: PropTypes.string,
+    animation: PropTypes.string,
+    className: PropTypes.string,
+    style: PropTypes.object
+  };
 
-  const [state, setState] = useState({
+  state = {
     x: 0,
     y: 0,
     visible: false,
@@ -92,103 +82,85 @@ export function Menu({
     propsFromTrigger: {},
     onShown: null,
     onHidden: null
-  });
+  };
 
-  const menuRef = useRef<HTMLDivElement>(null);
-  const unsubRef = useRef<(() => boolean)[]>([]);
+  menuRef!: HTMLDivElement;
+  unsub: (() => boolean)[] = [];
 
-  useEffect(() => {
-    // componentDidMount() {
-    unsubRef.current.push(eventManager.on(DISPLAY_MENU(id), show));
-    unsubRef.current.push(eventManager.on(HIDE_ALL, hide));
+  componentDidMount() {
+    this.unsub.push(eventManager.on(DISPLAY_MENU(this.props.id), this.show));
+    this.unsub.push(eventManager.on(HIDE_ALL, this.hide));
+  }
 
-    return () => {
-      unsubRef.current.forEach(cb => cb());
-      unBindWindowEvent();
-    };
-    // }
-  }, []);
+  componentWillUnmount() {
+    this.unsub.forEach(cb => cb());
+    this.unBindWindowEvent();
+  }
 
-  //  const  componentWillUnmount=()=> {
-  //     this.unsub.forEach(cb => cb());
-  //     this.unBindWindowEvent();
-  //   }
-
-  useEffect(() => {
-    if (state.visible && onShown) {
-      onShown();
-    } else if (!state.visible && onHidden) {
-      onHidden();
+  componentDidUpdate(_: Readonly<MenuProps>, prevState: Readonly<MenuState>) {
+    if (this.state.visible !== prevState.visible) {
+      if (this.state.visible && this.props.onShown) {
+        this.props.onShown();
+      } else if (!this.state.visible && this.props.onHidden) {
+        this.props.onHidden();
+      }
     }
-  }, [state]);
+  }
 
-  //  const  componentDidUpdate =(_: Readonly<MenuProps>, prevState: Readonly<MenuState>) =>{
-  //     if (this.state.visible !== prevState.visible) {
-  //       if (this.state.visible && this.props.onShown) {
-  //         this.props.onShown();
-  //       } else if (!this.state.visible && this.props.onHidden) {
-  //         this.props.onHidden();
-  //       }
-  //     }
-  //   }
-
-  const bindWindowEvent = () => {
-    window.addEventListener("resize", hide);
-    window.addEventListener("contextmenu", hide);
-    window.addEventListener("mousedown", hide);
-    window.addEventListener("click", hide);
-    window.addEventListener("scroll", hide);
-    window.addEventListener("keydown", handleKeyboard);
+  bindWindowEvent = () => {
+    window.addEventListener('resize', this.hide);
+    window.addEventListener('contextmenu', this.hide);
+    window.addEventListener('mousedown', this.hide);
+    window.addEventListener('click', this.hide);
+    window.addEventListener('scroll', this.hide);
+    window.addEventListener('keydown', this.handleKeyboard);
   };
 
-  const unBindWindowEvent = () => {
-    window.removeEventListener("resize", hide);
-    window.removeEventListener("contextmenu", hide);
-    window.removeEventListener("mousedown", hide);
-    window.removeEventListener("click", hide);
-    window.removeEventListener("scroll", hide);
-    window.removeEventListener("keydown", handleKeyboard);
+  unBindWindowEvent = () => {
+    window.removeEventListener('resize', this.hide);
+    window.removeEventListener('contextmenu', this.hide);
+    window.removeEventListener('mousedown', this.hide);
+    window.removeEventListener('click', this.hide);
+    window.removeEventListener('scroll', this.hide);
+    window.removeEventListener('keydown', this.handleKeyboard);
   };
 
-  const onMouseEnter = () => window.removeEventListener("mousedown", hide);
+  onMouseEnter = () => window.removeEventListener('mousedown', this.hide);
 
-  const onMouseLeave = () => window.addEventListener("mousedown", hide);
+  onMouseLeave = () => window.addEventListener('mousedown', this.hide);
 
-  const hide = (event?: Event) => {
+  hide = (event?: Event) => {
     // Safari trigger a click event when you ctrl + trackpad
     // Firefox:  trigger a click event when right click occur
     const e = event as KeyboardEvent & MouseEvent;
 
     if (
-      typeof e !== "undefined" &&
+      typeof e !== 'undefined' &&
       (e.button === 2 || e.ctrlKey === true) &&
-      e.type !== "contextmenu"
+      e.type !== 'contextmenu'
     ) {
       return;
     }
 
-    unBindWindowEvent();
-    setState({ ...state, visible: false });
+    this.unBindWindowEvent();
+    this.setState({ visible: false });
   };
 
-  const handleKeyboard = (e: KeyboardEvent) => {
+  handleKeyboard = (e: KeyboardEvent) => {
     if (e.keyCode === KEY.ENTER || e.keyCode === KEY.ESC) {
-      unBindWindowEvent();
-      setState({ ...state, visible: false });
+      this.unBindWindowEvent();
+      this.setState({ visible: false });
     }
   };
 
-  // const setRef = (ref: HTMLDivElement) => {
-  //   this.menuRef = ref;
-  // };
+  setRef = (ref: HTMLDivElement) => {
+    this.menuRef = ref;
+  };
 
-  const setMenuPosition = () => {
+  setMenuPosition() {
     const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-    const {
-      offsetWidth: menuWidth,
-      offsetHeight: menuHeight
-    } = menuRef.current!;
-    let { x, y } = state;
+    const { offsetWidth: menuWidth, offsetHeight: menuHeight } = this.menuRef;
+    let { x, y } = this.state;
 
     if (x + menuWidth > windowWidth) {
       x -= x + menuWidth - windowWidth;
@@ -198,21 +170,23 @@ export function Menu({
       y -= y + menuHeight - windowHeight;
     }
 
-    setState(
-      { ...state, x, y }
-      // bindWindowEvent
+    this.setState(
+      {
+        x,
+        y
+      },
+      this.bindWindowEvent
     );
-    bindWindowEvent();
-  };
+  }
 
-  const getMousePosition = (e: TriggerEvent) => {
+  getMousePosition(e: TriggerEvent) {
     const pos = {
       x: e.clientX,
       y: e.clientY
     };
 
     if (
-      e.type === "touchend" &&
+      e.type === 'touchend' &&
       (!pos.x || !pos.y) &&
       (e.changedTouches && e.changedTouches.length > 0)
     ) {
@@ -229,64 +203,79 @@ export function Menu({
     }
 
     return pos;
-  };
+  }
 
-  const show = (e: TriggerEvent, props: object) => {
+  show = (e: TriggerEvent, props: object) => {
     e.stopPropagation();
     eventManager.emit(HIDE_ALL);
 
-    const { x, y } = getMousePosition(e);
+    if ((props as any).position) {
+      const { x, y } = (props as any).position;
 
-    setState(
+      this.setState(
+        {
+          visible: true,
+          x,
+          y,
+          nativeEvent: e,
+          propsFromTrigger: props
+        },
+        this.setMenuPosition
+      );
+
+      return;
+    }
+
+    const { x, y } = this.getMousePosition(e);
+
+    this.setState(
       {
-        ...state,
         visible: true,
         x,
         y,
         nativeEvent: e,
         propsFromTrigger: props
-      }
-      // this.setMenuPosition
+      },
+      this.setMenuPosition
     );
-    setMenuPosition();
   };
 
-  // render() {
-  // const { theme, animation, style, className, children } = this.props;
-  const { visible, nativeEvent, propsFromTrigger, x, y } = state;
+  render() {
+    const { theme, animation, style, className, children } = this.props;
+    const { visible, nativeEvent, propsFromTrigger, x, y } = this.state;
 
-  const cssClasses = cx(styles.menu, className, {
-    [styles.theme + theme]: theme,
-    [styles.animationWillEnter + animation]: animation
-  });
-  const menuStyle = {
-    ...style,
-    left: x,
-    top: y + 1,
-    opacity: 1
-  };
+    const cssClasses = cx(styles.menu, className, {
+      [styles.theme + theme]: theme,
+      [styles.animationWillEnter + animation]: animation
+    });
+    const menuStyle = {
+      ...style,
+      left: x,
+      top: y + 1,
+      opacity: 1
+    };
 
-  return (
-    <Portal>
-      {visible && (
-        <div
-          className={cssClasses}
-          style={menuStyle}
-          ref={menuRef}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-        >
-          <div>
-            {cloneItem(children, {
-              nativeEvent,
-              propsFromTrigger
-            })}
+    return (
+      <Portal>
+        {visible && (
+          <div
+            className={cssClasses}
+            style={menuStyle}
+            ref={this.setRef}
+            onMouseEnter={this.onMouseEnter}
+            onMouseLeave={this.onMouseLeave}
+          >
+            <div>
+              {cloneItem(children, {
+                nativeEvent,
+                propsFromTrigger
+              })}
+            </div>
           </div>
-        </div>
-      )}
-    </Portal>
-  );
-  // }
+        )}
+      </Portal>
+    );
+  }
 }
 
-// export { Menu };
+export { Menu };

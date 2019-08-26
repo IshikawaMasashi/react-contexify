@@ -6,8 +6,9 @@ import {
   Submenu,
   contextMenu,
   theme,
-  animation
-} from "./../..";
+  animation,
+  MenuProvider
+} from "../../src";
 import Table from "./Table";
 import Select from "./Select";
 import { BuiltInTheme } from "../../src/utils/styles";
@@ -176,7 +177,12 @@ class App extends Component {
           <hr />
           <Table event={this.state.event} handleEvent={this.handleClick} />
         </div>
-
+        <MenuProvider
+          id={menuId}
+          style={{ border: "1px solid purple", display: "inline-block" }}
+        >
+          Right click me...
+        </MenuProvider>
         <MyAwesomeMenu {...this.state} onClick={this.handleMenuItem} />
       </main>
     );

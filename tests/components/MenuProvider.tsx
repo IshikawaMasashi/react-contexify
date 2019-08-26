@@ -67,17 +67,17 @@ describe('MenuProvider', () => {
     component.find('div').simulate('click', { preventDefault() {} });
   });
 
-  it('Should be able to collect children ref', () => {
-    const component = mount(
-      <MenuProvider id={menuId} storeRef>
-        <div>foo</div>
-        <div>bar</div>
-      </MenuProvider>
-    );
-    const instance = component.instance() as MenuProvider;
+  // it('Should be able to collect children ref', () => {
+  //   const component = mount(
+  //     <MenuProvider id={menuId} storeRef>
+  //       <div>foo</div>
+  //       <div>bar</div>
+  //     </MenuProvider>
+  //   );
+  //   const instance = component.instance() as MenuProvider;
 
-    expect(instance.childrenRefs.length).toBe(2);
-  });
+  //   expect(instance.childrenRefs.length).toBe(2);
+  // });
 
   it('Should stop propagation', () => {
     const handleEvent = jest.fn();

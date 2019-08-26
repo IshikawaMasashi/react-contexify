@@ -1,7 +1,7 @@
-import { eventManager } from "./eventManager";
-import { HIDE_ALL, DISPLAY_MENU } from "./actions";
-import { MenuId } from "../types";
-import React, { SyntheticEvent } from "react";
+import { eventManager } from './eventManager';
+import { HIDE_ALL, DISPLAY_MENU } from './actions';
+import { MenuId } from '../types';
+import React, { SyntheticEvent } from 'react';
 
 export interface ContextMenu {
   show: (params: {

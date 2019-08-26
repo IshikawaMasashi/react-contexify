@@ -36,15 +36,16 @@ export interface ItemProps extends StyleProps, InternalProps {
 
 const noop = () => {};
 
-export function Item({
+// const { useState } = React;
+function Item({
   disabled = false,
-  onClick = noop,
   nativeEvent,
   propsFromTrigger,
   data,
+  children,
+  onClick = noop,
   className,
-  style,
-  children
+  style
 }: ItemProps) {
   // static propTypes = {
   //   children: PropTypes.node.isRequired,
@@ -62,7 +63,7 @@ export function Item({
   //   onClick: noop
   // };
 
-  let isDisabled =
+  const isDisabled =
     typeof disabled === "function"
       ? disabled({
           event: nativeEvent as TriggerEvent,
@@ -71,8 +72,8 @@ export function Item({
       : disabled;
 
   // constructor(props: ItemProps) {
-  // super(props);
-  // const { disabled, nativeEvent, propsFromTrigger, data } = this.props;
+  //   super(props);
+  //   const { disabled, nativeEvent, propsFromTrigger, data } = this.props;
 
   //   this.isDisabled =
   //     typeof disabled === 'function'
@@ -92,7 +93,7 @@ export function Item({
         });
   };
 
-  // return {
+  // render() {
   // const { className, style, children } = this.props;
 
   const cssClasses = cx(styles.item, className, {
@@ -111,4 +112,4 @@ export function Item({
   );
 }
 
-// export { Item };
+export { Item };
