@@ -75,15 +75,13 @@ function Menu({
   theme
 }: MenuProps) {
   const [visible, setVisible] = useState(false);
-
-  const [state, setState] = useState({
-    x: 0,
-    y: 0,
-    nativeEvent: {} as TriggerEvent,
-    propsFromTrigger: {},
-    onShown: null,
-    onHidden: null
-  });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [nativeEvent, setNativeEvent] = useState({} as TriggerEvent);
+  const [propsFromTrigger, setPropsFromTrigger] = useState({});
+  // const [state, setState] = useState({
+  //   onShown: null,
+  //   onHidden: null
+  // });
 
   const menuRef = useRef<HTMLDivElement>(null);
   const unsubRef = useRef<(() => boolean)[]>([]);
@@ -170,7 +168,7 @@ function Menu({
       offsetWidth: menuWidth,
       offsetHeight: menuHeight
     } = menuRef.current!;
-    let { x, y } = state;
+    let { x, y } = position;
 
     if (x + menuWidth > windowWidth) {
       x -= x + menuWidth - windowWidth;
@@ -180,11 +178,12 @@ function Menu({
       y -= y + menuHeight - windowHeight;
     }
 
-    setState({
-      ...state,
-      x,
-      y
-    });
+    // setState({
+    //   ...state,
+    //   x,
+    //   y
+    // });
+    setPosition({ x, y });
   };
 
   const getMousePosition = (e: TriggerEvent) => {
@@ -221,14 +220,12 @@ function Menu({
       const { x, y } = (props as any).position;
 
       setVisible(true);
-      setState({
-        ...state,
-        // visible: true,
-        x,
-        y,
-        nativeEvent: e,
-        propsFromTrigger: props
-      });
+      setPosition({ x, y });
+      setNativeEvent(e);
+      setPropsFromTrigger(props)
+      // setState({
+      //   ...state,
+      // });
       setMenuPosition();
       return;
     }
@@ -236,18 +233,18 @@ function Menu({
     const { x, y } = getMousePosition(e);
 
     setVisible(true);
-    setState({
-      ...state,
-      x,
-      y,
-      nativeEvent: e,
-      propsFromTrigger: props
-    });
+    setPosition({ x, y });
+    setNativeEvent(e);
+    setPropsFromTrigger(props)
+    // setState({
+    //   ...state,
+    // });
     setMenuPosition();
   };
 
-  const { nativeEvent, propsFromTrigger, x, y } = state;
+  // const { propsFromTrigger } = state;
 
+  const { x, y } = position;
   const cssClasses = cx(styles.menu, className, {
     [styles.theme + theme]: theme,
     [styles.animationWillEnter + animation]: animation
