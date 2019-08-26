@@ -1,15 +1,14 @@
 /* global: window */
-import React, { Component, ReactNode } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import React, { ReactNode } from "react";
+import cx from "classnames";
 
-import { cloneItem } from './cloneItem';
-import { Portal } from './Portal';
+import { cloneItem } from "./cloneItem";
+import { Portal } from "./Portal";
 
-import { HIDE_ALL, DISPLAY_MENU } from '../utils/actions';
-import { styles } from '../utils/styles';
-import { eventManager } from '../utils/eventManager';
-import { TriggerEvent, StyleProps, MenuId } from '../types';
+import { HIDE_ALL, DISPLAY_MENU } from "../utils/actions";
+import { styles } from "../utils/styles";
+import { eventManager } from "../utils/eventManager";
+import { TriggerEvent, StyleProps, MenuId } from "../types";
 
 const KEY = {
   ENTER: 13,
@@ -56,111 +55,122 @@ export interface MenuProps extends StyleProps {
   onHidden?: () => void;
 }
 
-interface MenuState {
-  x: number;
-  y: number;
-  visible: boolean;
-  nativeEvent: TriggerEvent;
-  propsFromTrigger: object;
-}
+// interface MenuState {
+//   x: number;
+//   y: number;
+//   visible: boolean;
+//   nativeEvent: TriggerEvent;
+//   propsFromTrigger: object;
+// }
 
-class Menu extends Component<MenuProps, MenuState> {
-  static propTypes = {
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    children: PropTypes.node.isRequired,
-    theme: PropTypes.string,
-    animation: PropTypes.string,
-    className: PropTypes.string,
-    style: PropTypes.object
-  };
+const { useState, useRef, useEffect } = React;
+function Menu({
+  animation,
+  children,
+  className,
+  id,
+  onHidden,
+  onShown,
+  style,
+  theme
+}: MenuProps) {
+  const [visible, setVisible] = useState(false);
 
-  state = {
+  const [state, setState] = useState({
     x: 0,
     y: 0,
-    visible: false,
     nativeEvent: {} as TriggerEvent,
     propsFromTrigger: {},
     onShown: null,
     onHidden: null
-  };
+  });
 
-  menuRef!: HTMLDivElement;
-  unsub: (() => boolean)[] = [];
+  const menuRef = useRef<HTMLDivElement>(null);
+  const unsubRef = useRef<(() => boolean)[]>([]);
 
-  componentDidMount() {
-    this.unsub.push(eventManager.on(DISPLAY_MENU(this.props.id), this.show));
-    this.unsub.push(eventManager.on(HIDE_ALL, this.hide));
-  }
+  useEffect(() => {
+    unsubRef.current.push(eventManager.on(DISPLAY_MENU(id), show));
+    unsubRef.current.push(eventManager.on(HIDE_ALL, hide));
+    return () => {
+      unsubRef.current.forEach(cb => cb());
+      unBindWindowEvent();
+    };
+  }, []);
 
-  componentWillUnmount() {
-    this.unsub.forEach(cb => cb());
-    this.unBindWindowEvent();
-  }
-
-  componentDidUpdate(_: Readonly<MenuProps>, prevState: Readonly<MenuState>) {
-    if (this.state.visible !== prevState.visible) {
-      if (this.state.visible && this.props.onShown) {
-        this.props.onShown();
-      } else if (!this.state.visible && this.props.onHidden) {
-        this.props.onHidden();
+  useEffect(() => {
+    if (visible) {
+      bindWindowEvent();
+      if (onShown) {
+        onShown();
       }
+      return;
     }
-  }
 
-  bindWindowEvent = () => {
-    window.addEventListener('resize', this.hide);
-    window.addEventListener('contextmenu', this.hide);
-    window.addEventListener('mousedown', this.hide);
-    window.addEventListener('click', this.hide);
-    window.addEventListener('scroll', this.hide);
-    window.addEventListener('keydown', this.handleKeyboard);
+    unBindWindowEvent();
+    if (onHidden) {
+      onHidden();
+    }
+  }, [visible]);
+
+  const bindWindowEvent = () => {
+    window.addEventListener("resize", hide);
+    window.addEventListener("contextmenu", hide);
+    window.addEventListener("mousedown", hide);
+    window.addEventListener("click", hide);
+    window.addEventListener("scroll", hide);
+    window.addEventListener("keydown", handleKeyboard);
   };
 
-  unBindWindowEvent = () => {
-    window.removeEventListener('resize', this.hide);
-    window.removeEventListener('contextmenu', this.hide);
-    window.removeEventListener('mousedown', this.hide);
-    window.removeEventListener('click', this.hide);
-    window.removeEventListener('scroll', this.hide);
-    window.removeEventListener('keydown', this.handleKeyboard);
+  const unBindWindowEvent = () => {
+    window.removeEventListener("resize", hide);
+    window.removeEventListener("contextmenu", hide);
+    window.removeEventListener("mousedown", hide);
+    window.removeEventListener("click", hide);
+    window.removeEventListener("scroll", hide);
+    window.removeEventListener("keydown", handleKeyboard);
   };
 
-  onMouseEnter = () => window.removeEventListener('mousedown', this.hide);
+  const onMouseEnter = () => window.removeEventListener("mousedown", hide);
 
-  onMouseLeave = () => window.addEventListener('mousedown', this.hide);
+  const onMouseLeave = () => window.addEventListener("mousedown", hide);
 
-  hide = (event?: Event) => {
+  const hide = (event?: Event) => {
     // Safari trigger a click event when you ctrl + trackpad
     // Firefox:  trigger a click event when right click occur
     const e = event as KeyboardEvent & MouseEvent;
 
     if (
-      typeof e !== 'undefined' &&
+      typeof e !== "undefined" &&
       (e.button === 2 || e.ctrlKey === true) &&
-      e.type !== 'contextmenu'
+      e.type !== "contextmenu"
     ) {
       return;
     }
 
-    this.unBindWindowEvent();
-    this.setState({ visible: false });
+    unBindWindowEvent();
+    // setState({ ...state, visible: false });
+    setVisible(false);
   };
 
-  handleKeyboard = (e: KeyboardEvent) => {
+  const handleKeyboard = (e: KeyboardEvent) => {
     if (e.keyCode === KEY.ENTER || e.keyCode === KEY.ESC) {
-      this.unBindWindowEvent();
-      this.setState({ visible: false });
+      unBindWindowEvent();
+      // setState({ ...state, visible: false });
+      setVisible(false);
     }
   };
 
-  setRef = (ref: HTMLDivElement) => {
-    this.menuRef = ref;
-  };
+  // const setRef = (ref: HTMLDivElement) => {
+  //   menuRef = ref;
+  // };
 
-  setMenuPosition() {
+  const setMenuPosition = () => {
     const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-    const { offsetWidth: menuWidth, offsetHeight: menuHeight } = this.menuRef;
-    let { x, y } = this.state;
+    const {
+      offsetWidth: menuWidth,
+      offsetHeight: menuHeight
+    } = menuRef.current!;
+    let { x, y } = state;
 
     if (x + menuWidth > windowWidth) {
       x -= x + menuWidth - windowWidth;
@@ -170,23 +180,21 @@ class Menu extends Component<MenuProps, MenuState> {
       y -= y + menuHeight - windowHeight;
     }
 
-    this.setState(
-      {
-        x,
-        y
-      },
-      this.bindWindowEvent
-    );
-  }
+    setState({
+      ...state,
+      x,
+      y
+    });
+  };
 
-  getMousePosition(e: TriggerEvent) {
+  const getMousePosition = (e: TriggerEvent) => {
     const pos = {
       x: e.clientX,
       y: e.clientY
     };
 
     if (
-      e.type === 'touchend' &&
+      e.type === "touchend" &&
       (!pos.x || !pos.y) &&
       (e.changedTouches && e.changedTouches.length > 0)
     ) {
@@ -203,79 +211,74 @@ class Menu extends Component<MenuProps, MenuState> {
     }
 
     return pos;
-  }
+  };
 
-  show = (e: TriggerEvent, props: object) => {
+  const show = (e: TriggerEvent, props: object) => {
     e.stopPropagation();
     eventManager.emit(HIDE_ALL);
 
     if ((props as any).position) {
       const { x, y } = (props as any).position;
 
-      this.setState(
-        {
-          visible: true,
-          x,
-          y,
-          nativeEvent: e,
-          propsFromTrigger: props
-        },
-        this.setMenuPosition
-      );
-
-      return;
-    }
-
-    const { x, y } = this.getMousePosition(e);
-
-    this.setState(
-      {
-        visible: true,
+      setVisible(true);
+      setState({
+        ...state,
+        // visible: true,
         x,
         y,
         nativeEvent: e,
         propsFromTrigger: props
-      },
-      this.setMenuPosition
-    );
+      });
+      setMenuPosition();
+      return;
+    }
+
+    const { x, y } = getMousePosition(e);
+
+    setVisible(true);
+    setState({
+      ...state,
+      x,
+      y,
+      nativeEvent: e,
+      propsFromTrigger: props
+    });
+    setMenuPosition();
   };
 
-  render() {
-    const { theme, animation, style, className, children } = this.props;
-    const { visible, nativeEvent, propsFromTrigger, x, y } = this.state;
+  const { nativeEvent, propsFromTrigger, x, y } = state;
 
-    const cssClasses = cx(styles.menu, className, {
-      [styles.theme + theme]: theme,
-      [styles.animationWillEnter + animation]: animation
-    });
-    const menuStyle = {
-      ...style,
-      left: x,
-      top: y + 1,
-      opacity: 1
-    };
+  const cssClasses = cx(styles.menu, className, {
+    [styles.theme + theme]: theme,
+    [styles.animationWillEnter + animation]: animation
+  });
+  const menuStyle = {
+    ...style,
+    left: x,
+    top: y + 1,
+    opacity: 1
+  };
 
-    return (
-      <Portal>
-        {visible && (
-          <div
-            className={cssClasses}
-            style={menuStyle}
-            ref={this.setRef}
-            onMouseEnter={this.onMouseEnter}
-            onMouseLeave={this.onMouseLeave}
-          >
-            <div>
-              {cloneItem(children, {
-                nativeEvent,
-                propsFromTrigger
-              })}
-            </div>
+  return (
+    <Portal>
+      {visible && (
+        <div
+          className={cssClasses}
+          style={menuStyle}
+          ref={menuRef}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+        >
+          <div>
+            {cloneItem(children, {
+              nativeEvent,
+              propsFromTrigger
+            })}
           </div>
-        )}
-      </Portal>
-    );
-  }
+        </div>
+      )}
+    </Portal>
+  );
 }
 
 export { Menu };
