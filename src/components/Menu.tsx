@@ -142,6 +142,8 @@ function Menu({
       (e.button === 2 || e.ctrlKey === true) &&
       e.type !== "contextmenu"
     ) {
+      unBindWindowEvent();
+      setVisible(false);
       return;
     }
 
@@ -163,27 +165,21 @@ function Menu({
   // };
 
   const setMenuPosition = () => {
-    const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-    const {
-      offsetWidth: menuWidth,
-      offsetHeight: menuHeight
-    } = menuRef.current!;
-    let { x, y } = position;
-
-    if (x + menuWidth > windowWidth) {
-      x -= x + menuWidth - windowWidth;
-    }
-
-    if (y + menuHeight > windowHeight) {
-      y -= y + menuHeight - windowHeight;
-    }
-
-    // setState({
-    //   ...state,
-    //   x,
-    //   y
-    // });
-    setPosition({ x, y });
+    // if (menuRef.current) {
+    //   const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
+    //   const {
+    //     offsetWidth: menuWidth,
+    //     offsetHeight: menuHeight
+    //   } = menuRef.current;
+    //   let { x, y } = position;
+    //   if (x + menuWidth > windowWidth) {
+    //     x -= x + menuWidth - windowWidth;
+    //   }
+    //   if (y + menuHeight > windowHeight) {
+    //     y -= y + menuHeight - windowHeight;
+    //   }
+    //   setPosition({ x, y });
+    // }
   };
 
   const getMousePosition = (e: TriggerEvent) => {
@@ -222,7 +218,7 @@ function Menu({
       setVisible(true);
       setPosition({ x, y });
       setNativeEvent(e);
-      setPropsFromTrigger(props)
+      setPropsFromTrigger(props);
       // setState({
       //   ...state,
       // });
@@ -235,7 +231,7 @@ function Menu({
     setVisible(true);
     setPosition({ x, y });
     setNativeEvent(e);
-    setPropsFromTrigger(props)
+    setPropsFromTrigger(props);
     // setState({
     //   ...state,
     // });
