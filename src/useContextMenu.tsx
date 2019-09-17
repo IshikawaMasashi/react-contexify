@@ -5,11 +5,13 @@ import {
   useEffect,
   useCallback
 } from "react";
+
 import { getMenuPosition, getRTLMenuPosition } from "./helpers";
 import buildUseContextMenuTrigger, {
-  TriggerBind,
-  Config
+  UseContextMenuTrigger
 } from "./buildUseContextMenuTrigger";
+
+export type Coords = [number, number];
 
 export type BindMenu = {
   style: React.CSSProperties;
@@ -18,7 +20,14 @@ export type BindMenu = {
   tabIndex: number;
 };
 
+export type BindMenuItems = {
+  ref: (el: HTMLElement) => HTMLElement[];
+  role: string;
+  tabIndex: number;
+};
+
 const ESCAPE = 27;
+
 const baseStyles: React.CSSProperties = {
   position: "fixed",
   opacity: 0,
@@ -26,34 +35,46 @@ const baseStyles: React.CSSProperties = {
 };
 
 const focusElement = (el: HTMLElement) => el.focus();
-const useContextMenu = ({
+
+function useContextMenu<T = string>({
   rtl = false,
   handleElementSelect = focusElement
-} = {}): [BindMenu, any, (_config: Config) => TriggerBind[], any] => {
+} = {}): [
+  BindMenu,
+  BindMenuItems,
+  UseContextMenuTrigger<T>,
+  {
+    coords: [number, number];
+    data: T | undefined;
+    isVisible: boolean;
+    setVisible: (visible: boolean) => void;
+    setCoords: (coords: Coords) => void;
+  }
+] {
   const menuRef = useRef<HTMLElement>();
-  const selectables = useRef<any[]>([]);
+  const selectables = useRef<HTMLElement[]>([]);
   const [style, setStyles] = useState(baseStyles);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isVisible, setVisible] = useState(false);
-  const [coords, setCoords] = useState();
-  const [collectedData, setCollectedData] = useState();
+  const [coords, setCoords] = useState<Coords>([0, 0]);
+  const [collectedData, setCollectedData] = useState<T>();
   const hideMenu = useCallback(() => setVisible(false), [setVisible]);
   const triggerVisible = useCallback(
-    data => {
+    (data: T) => {
       setVisible(true);
       setCollectedData(data);
     },
     [setVisible, setCollectedData]
   );
 
-  const markSelectable = (el: any) =>
+  const markSelectable = (el: HTMLElement) =>
     (selectables.current = el === null ? [] : [...selectables.current, el]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
       !menuRef.current!.contains(e.target as Node) && hideMenu();
     };
-    const handleKeyNavigation = (e: any) => {
+    const handleKeyNavigation = (e: KeyboardEvent) => {
       switch (e.keyCode) {
         case ESCAPE:
           e.preventDefault();
@@ -129,7 +150,7 @@ const useContextMenu = ({
     tabIndex: -1
   };
 
-  const bindMenuItems = {
+  const bindMenuItems: BindMenuItems = {
     ref: markSelectable,
     role: "menuitem",
     tabIndex: -1
@@ -146,6 +167,6 @@ const useContextMenu = ({
       setCoords
     }
   ];
-};
+}
 
 export default useContextMenu;

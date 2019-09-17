@@ -6,25 +6,33 @@ const MOUSE_BUTTON = {
   RIGHT: 2
 };
 
-export type Config = {
+export type UseContextMenuTriggerArguments<T> = {
+  disable?: boolean;
+  holdToDisplay?: number;
+  posX?: number;
+  posY?: number;
+  mouseButton?: number;
+  disableIfShiftIsPressed?: boolean;
+  collect?: () => T;
+};
+
+export type Config<T> = {
   disable: boolean;
   holdToDisplay: number;
   posX: number;
   posY: number;
   mouseButton: number;
   disableIfShiftIsPressed: boolean;
-  collect: () => string;
+  collect: () => T;
 };
-const defaultConfig: Config = {
+const defaultConfig: Config<string> = {
   disable: false,
   holdToDisplay: 1000,
   posX: 0,
   posY: 0,
   mouseButton: MOUSE_BUTTON.RIGHT,
   disableIfShiftIsPressed: false,
-  collect() {
-    return "";
-  }
+  collect: () => ""
 };
 
 export type TriggerBind = {
@@ -37,12 +45,16 @@ export type TriggerBind = {
   onTouchStart: (event: React.TouchEvent) => void;
 };
 
-export default function buildUseContextMenuTrigger(
-  triggerVisible: (data: string) => void,
-  setCoords: any
-) {
-  return (_config: Config): TriggerBind[] => {
-    const config = Object.assign({}, defaultConfig, _config);
+export type UseContextMenuTrigger<T> = {
+  (_config: UseContextMenuTriggerArguments<T>): TriggerBind[];
+};
+
+export default function buildUseContextMenuTrigger<T>(
+  triggerVisible: (data: T) => void,
+  setCoords: (coords: [number, number]) => void
+): UseContextMenuTrigger<T> {
+  return (_config: UseContextMenuTriggerArguments<T>) => {
+    const config: Config<T> = Object.assign({}, defaultConfig, _config);
     const touchHandled = useRef(false);
     const mouseDownTimeoutId = useRef<number>();
     const touchstartTimeoutId = useRef<any>();
@@ -54,7 +66,7 @@ export default function buildUseContextMenuTrigger(
       event.preventDefault();
       event.stopPropagation();
 
-      setCoords(getCoords(event, config));
+      setCoords(getCoords(event, config) as [number, number]);
       triggerVisible(config.collect());
     };
 
@@ -115,7 +127,7 @@ export default function buildUseContextMenuTrigger(
       }
     };
 
-    const triggerBind = {
+    const triggerBind: TriggerBind = {
       onContextMenu: handleContextMenu,
       onClick: handleMouseClick,
       onMouseDown: handleMouseDown,

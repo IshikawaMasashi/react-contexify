@@ -37,7 +37,7 @@ function App() {
     bindMenuItem,
     useContextTrigger,
     { data, coords, setVisible }
-  ] = useContextMenu();
+  ] = useContextMenu<string>();
   const [bindTrigger] = useContextTrigger({
     collect: () => "Title"
   });
