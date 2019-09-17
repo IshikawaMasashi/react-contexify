@@ -3,9 +3,7 @@
 exports[`Submenu Should accept a custom arrow ➡️ 1`] = `
 <Submenu
   arrow="🦄"
-  disabled={false}
   label="bar"
-  nativeEvent={Object {}}
 >
   <div
     className="react-contexify__item"
@@ -48,10 +46,7 @@ exports[`Submenu Should accept a custom arrow ➡️ 1`] = `
 
 exports[`Submenu Should not go offscreen 1`] = `
 <Submenu
-  arrow="▶"
-  disabled={false}
   label="bar"
-  nativeEvent={Object {}}
 >
   <div
     className="react-contexify__item"
@@ -94,10 +89,7 @@ exports[`Submenu Should not go offscreen 1`] = `
 
 exports[`Submenu Should render without crash 💥 1`] = `
 <Submenu
-  arrow="▶"
-  disabled={false}
   label="bar"
-  nativeEvent={Object {}}
 >
   <div
     className="react-contexify__item"

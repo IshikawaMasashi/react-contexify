@@ -1,14 +1,14 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 // import PropTypes from 'prop-types';
-import cx from "classnames";
+import cx from 'classnames';
 
-import { styles } from "../utils/styles";
+import { styles } from '../utils/styles';
 import {
   MenuItemEventHandler,
   TriggerEvent,
   StyleProps,
   InternalProps
-} from "../types";
+} from '../types';
 
 export interface ItemProps extends StyleProps, InternalProps {
   /**
@@ -64,7 +64,7 @@ function Item({
   // };
 
   const isDisabled =
-    typeof disabled === "function"
+    typeof disabled === 'function'
       ? disabled({
           event: nativeEvent as TriggerEvent,
           props: { ...propsFromTrigger, ...data }

@@ -1,5 +1,4 @@
-import {
-  Component,
+import React, {
   createElement,
   Children,
   cloneElement,
@@ -8,7 +7,6 @@ import {
   SyntheticEvent,
   ReactElement
 } from 'react';
-import PropTypes from 'prop-types';
 
 import { DISPLAY_MENU } from '../utils/actions';
 import { eventManager } from '../utils/eventManager';
@@ -28,18 +26,18 @@ export interface MenuProviderProps extends StyleProps {
   /**
    * Any valid node that can be rendered or a function returning a valid react node
    */
-  component: ReactNode | ((args?: any) => ReactNode);
+  component?: ReactNode | ((args?: any) => ReactNode);
 
   /**
    * Render props
    */
-  render?: (args?: any) => ReactNode;
+  render?: (args?: any) => ReactElement;
 
   /**
    * Any react event
    * `onClick`, `onContextMenu`, ...
    */
-  event: string;
+  event?: string;
 
   /**
    * Store children ref
@@ -53,43 +51,32 @@ export interface MenuProviderProps extends StyleProps {
   data?: object;
 }
 
-class MenuProvider extends Component<MenuProviderProps> {
-  static propTypes = {
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    children: PropTypes.node.isRequired,
-    component: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-    render: PropTypes.func,
-    event: PropTypes.string,
-    className: PropTypes.string,
-    style: PropTypes.object,
-    storeRef: PropTypes.bool,
-    data: PropTypes.object
-  };
+const { useRef } = React;
+function MenuProvider(props: MenuProviderProps): ReactElement {
+  // static defaultProps = {
+  //   component: 'div',
+  //   event: 'onContextMenu',
+  //   storeRef: true
+  // };
 
-  static defaultProps = {
-    component: 'div',
-    event: 'onContextMenu',
-    storeRef: true
-  };
+  const childrenRefs = useRef([] as HTMLElement[]);
 
-  childrenRefs = [] as HTMLElement[];
-
-  handleEvent = (e: SyntheticEvent) => {
+  const handleEvent = (e: SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    eventManager.emit(DISPLAY_MENU(this.props.id), e.nativeEvent, {
+    eventManager.emit(DISPLAY_MENU(props.id), e.nativeEvent, {
       ref:
-        this.childrenRefs.length === 1
-          ? this.childrenRefs[0]
-          : this.childrenRefs,
-      ...this.props.data
+        childrenRefs.current.length === 1
+          ? childrenRefs.current[0]
+          : childrenRefs.current,
+      ...props.data
     });
   };
 
-  setChildRef = (ref: HTMLElement) =>
-    ref === null || this.childrenRefs.push(ref);
+  const setChildRef = (ref: HTMLElement) =>
+    ref === null || childrenRefs.current.push(ref);
 
-  getChildren() {
+  const getChildren = () => {
     // remove all the props specific to the provider
     const {
       id,
@@ -101,35 +88,39 @@ class MenuProvider extends Component<MenuProviderProps> {
       storeRef,
       data,
       ...rest
-    } = this.props;
+    } = props;
 
     // reset refs
-    this.childrenRefs = [];
+    childrenRefs.current = [];
 
     return Children.map(children, child =>
       isValidElement(child)
         ? cloneElement(child as ReactElement<any>, {
             ...rest,
-            ...(storeRef ? { ref: this.setChildRef } : {})
+            ...(storeRef ? { ref: setChildRef } : {})
           })
         : child
     );
+  };
+
+  const { component, render, event, className, style } = props;
+  const attributes = {
+    [event!]: handleEvent,
+    className,
+    style
+  };
+
+  if (typeof render === 'function') {
+    return render({ ...attributes, children: getChildren() });
   }
 
-  render() {
-    const { component, render, event, className, style } = this.props;
-    const attributes = {
-      [event]: this.handleEvent,
-      className,
-      style
-    };
-
-    if (typeof render === 'function') {
-      return render({ ...attributes, children: this.getChildren() });
-    }
-
-    return createElement(component as any, attributes, this.getChildren());
-  }
+  return createElement(component as any, attributes, getChildren());
 }
+
+MenuProvider.defaultProps = {
+  component: 'div',
+  event: 'onContextMenu',
+  storeRef: true
+};
 
 export { MenuProvider };

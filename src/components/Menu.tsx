@@ -1,14 +1,14 @@
 /* global: window */
-import React, { ReactNode } from "react";
-import cx from "classnames";
+import React, { ReactNode } from 'react';
+import cx from 'classnames';
 
-import { cloneItem } from "./cloneItem";
-import { Portal } from "./Portal";
+import { cloneItem } from './cloneItem';
+import { Portal } from './Portal';
 
-import { HIDE_ALL, DISPLAY_MENU } from "../utils/actions";
-import { styles } from "../utils/styles";
-import { eventManager } from "../utils/eventManager";
-import { TriggerEvent, StyleProps, MenuId } from "../types";
+import { HIDE_ALL, DISPLAY_MENU } from '../utils/actions';
+import { styles } from '../utils/styles';
+import { eventManager } from '../utils/eventManager';
+import { TriggerEvent, StyleProps, MenuId } from '../types';
 
 const KEY = {
   ENTER: 13,
@@ -111,41 +111,41 @@ function Menu({
   }, [visible]);
 
   const bindWindowEvent = () => {
-    window.addEventListener("resize", hide);
-    window.addEventListener("contextmenu", hide);
-    window.addEventListener("mousedown", hide);
-    window.addEventListener("click", hide);
-    window.addEventListener("scroll", hide);
-    window.addEventListener("keydown", handleKeyboard);
+    window.addEventListener('resize', hide);
+    window.addEventListener('contextmenu', hide);
+    window.addEventListener('mousedown', hide);
+    window.addEventListener('click', hide);
+    window.addEventListener('scroll', hide);
+    window.addEventListener('keydown', handleKeyboard);
   };
 
   const unBindWindowEvent = () => {
-    window.removeEventListener("resize", hide);
-    window.removeEventListener("contextmenu", hide);
-    window.removeEventListener("mousedown", hide);
-    window.removeEventListener("click", hide);
-    window.removeEventListener("scroll", hide);
-    window.removeEventListener("keydown", handleKeyboard);
+    window.removeEventListener('resize', hide);
+    window.removeEventListener('contextmenu', hide);
+    window.removeEventListener('mousedown', hide);
+    window.removeEventListener('click', hide);
+    window.removeEventListener('scroll', hide);
+    window.removeEventListener('keydown', handleKeyboard);
   };
 
-  const onMouseEnter = () => window.removeEventListener("mousedown", hide);
+  const onMouseEnter = () => window.removeEventListener('mousedown', hide);
 
-  const onMouseLeave = () => window.addEventListener("mousedown", hide);
+  const onMouseLeave = () => window.addEventListener('mousedown', hide);
 
   const hide = (event?: Event) => {
     // Safari trigger a click event when you ctrl + trackpad
     // Firefox:  trigger a click event when right click occur
-    const e = event as KeyboardEvent & MouseEvent;
+    // const e = event as KeyboardEvent & MouseEvent;
 
-    if (
-      typeof e !== "undefined" &&
-      (e.button === 2 || e.ctrlKey === true) &&
-      e.type !== "contextmenu"
-    ) {
-      unBindWindowEvent();
-      setVisible(false);
-      return;
-    }
+    // if (
+    //   typeof e !== 'undefined' &&
+    //   (e.button === 2 || e.ctrlKey === true) &&
+    //   e.type !== 'contextmenu'
+    // ) {
+    //   unBindWindowEvent();
+    //   setVisible(false);
+    //   return;
+    // }
 
     unBindWindowEvent();
     // setState({ ...state, visible: false });
@@ -189,7 +189,7 @@ function Menu({
     };
 
     if (
-      e.type === "touchend" &&
+      e.type === 'touchend' &&
       (!pos.x || !pos.y) &&
       (e.changedTouches && e.changedTouches.length > 0)
     ) {

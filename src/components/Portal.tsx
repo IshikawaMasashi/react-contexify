@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { createPortal } from "react-dom";
+import React, { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 type Props = {
   children: ReactNode;
@@ -9,7 +9,7 @@ const { useEffect, useLayoutEffect, useRef } = React;
 
 function Portal({ children }: Props) {
   // const [canRender, setCanRender] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(document.createElement("div"));
+  const containerRef = useRef<HTMLDivElement>(document.createElement('div'));
   // state = {
   //   canRender: false
   // };
