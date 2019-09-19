@@ -52,14 +52,30 @@
       font-style: normal; }
 
 .menu {
-  background-color: blueviolet;
-  color: white;
-  box-shadow: 0 3px 6px rgba(91, 65, 209, 0.16), 0 3px 6px rgba(91, 65, 209, 0.23);
-  padding: 0 2em 0 2em;
-  text-align: left; }
+  background-color: #252526;
+  color: #cccccc;
+  box-shadow: black 0px 2px 4px;
+  padding: 0.5rem 0 0.5rem 0;
+  text-align: left;
+  z-index: 2000; }
+
+.menu > hr {
+  width: 90%; }
 
 .menu > [role="menuitem"] {
   cursor: pointer; }
+
+.menu .menu-item:focus {
+  color: white;
+  background-color: #094771; }
+
+.menu-item {
+  padding: 6px;
+  margin: 0; }
+
+.menu-item:hover {
+  color: white;
+  background-color: #094771; }
 
 .react-contexify__theme--dark {
   padding: 6px 0;
