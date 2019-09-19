@@ -4,11 +4,11 @@
   user-select: none;
   background-color: #ffffff;
   box-sizing: border-box;
-  box-shadow: rgba(0, 0, 0, .3) 0 10px 20px, rgb(238, 238, 238) 0 0 0 1px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 10px 20px, rgb(238, 238, 238) 0 0 0 1px;
   padding: 5px 0;
   min-width: 180px;
 
-  & &__submenu{
+  & &__submenu {
     position: absolute;
     top: 0;
     pointer-events: none;
@@ -28,7 +28,7 @@
     height: 1px;
     cursor: default;
     margin: 4px 0;
-    background-color: rgba(0, 0, 0, .2);
+    background-color: rgba(0, 0, 0, 0.2);
   }
 
   &__item {
@@ -47,7 +47,7 @@
 
     &--disabled {
       cursor: default;
-      opacity: .5;
+      opacity: 0.5;
     }
     &__content {
       padding: 6px 12px;
@@ -63,4 +63,17 @@
       font-style: normal;
     }
   }
+}
+
+.menu {
+  background-color: blueviolet;
+  color: white;
+  box-shadow: 0 3px 6px rgba(91, 65, 209, 0.16),
+    0 3px 6px rgba(91, 65, 209, 0.23);
+  padding: 0 2em 0 2em;
+  text-align: left;
+}
+
+.menu > [role="menuitem"] {
+  cursor: pointer;
 }

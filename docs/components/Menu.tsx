@@ -1,15 +1,23 @@
 import React from "react";
+import { BindMenu, Coords, BindMenuItems } from "../../src/useContextMenu";
 
-const Menu = (props: any) => {
-  const {
-    bindMenu,
-    data,
-    bindMenuItem,
-    coords,
-    setClickedCmd,
-    hideMenu
-  } = props;
+type Props = {
+  bindMenu: BindMenu;
+  data: any;
+  bindMenuItem: BindMenuItems;
+  coords: Coords;
+  setClickedCmd: any;
+  hideMenu: any;
+};
 
+function Menu({
+  bindMenu,
+  data,
+  bindMenuItem,
+  coords,
+  setClickedCmd,
+  hideMenu
+}: Props) {
   const handleMenuItemClick = (n: string) => () => {
     setClickedCmd(n);
     hideMenu();
@@ -41,6 +49,6 @@ const Menu = (props: any) => {
       </p>
     </div>
   );
-};
+}
 
 export default Menu;

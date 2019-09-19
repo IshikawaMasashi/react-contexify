@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import ReactDOM from "react-dom";
 import useContextMenu from "../../src";
 import Menu from "./Menu";
 
-import "./styles.css";
+// import "./styles.css";
 
 const list = [
   {
@@ -31,7 +30,7 @@ const ListItem = ({ name, useContextTrigger }: any) => {
   return <li {...bindTrigger}>{name}</li>;
 };
 
-function App() {
+function Example1() {
   const [
     bindMenu,
     bindMenuItem,
@@ -73,4 +72,4 @@ function App() {
   );
 }
 
-export default App;
+export default Example1;

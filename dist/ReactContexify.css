@@ -38,7 +38,7 @@
       opacity: 1; }
     .react-contexify__item--disabled {
       cursor: default;
-      opacity: .5; }
+      opacity: 0.5; }
     .react-contexify__item__content {
       padding: 6px 12px;
       display: flex;
@@ -50,6 +50,16 @@
       font-size: 20px;
       margin-right: 5px;
       font-style: normal; }
+
+.menu {
+  background-color: blueviolet;
+  color: white;
+  box-shadow: 0 3px 6px rgba(91, 65, 209, 0.16), 0 3px 6px rgba(91, 65, 209, 0.23);
+  padding: 0 2em 0 2em;
+  text-align: left; }
+
+.menu > [role="menuitem"] {
+  cursor: pointer; }
 
 .react-contexify__theme--dark {
   padding: 6px 0;

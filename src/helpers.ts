@@ -1,7 +1,6 @@
-export const getMenuPosition = (
-  rect: { height: number; width: number },
-  [x, y]: [number, number]
-) => {
+import { Coords } from './useContextMenu';
+
+export const getMenuPosition = (rect: ClientRect, [x, y]: Coords) => {
   const menuStyles = {
     top: y,
     left: x
@@ -30,10 +29,7 @@ export const getMenuPosition = (
   return menuStyles;
 };
 
-export const getRTLMenuPosition = (
-  rect: { height: number; width: number },
-  [x, y]: [number, number]
-) => {
+export const getRTLMenuPosition = (rect: ClientRect, [x, y]: Coords) => {
   const menuStyles = {
     top: y,
     left: x
@@ -66,7 +62,7 @@ export const getRTLMenuPosition = (
 };
 
 export const getCoords = (event: any, config: any) =>
-  ["X", "Y"].map(
+  ['X', 'Y'].map(
     axis =>
       (event[`client${axis}`] ||
         (event.touches && event.touches[0][`page${axis}`])) -

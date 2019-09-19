@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { getCoords } from "./helpers";
+import { useRef } from 'react';
+import { getCoords } from './helpers';
 
 const MOUSE_BUTTON = {
   LEFT: 0,
@@ -32,7 +32,7 @@ const defaultConfig: Config<string> = {
   posY: 0,
   mouseButton: MOUSE_BUTTON.RIGHT,
   disableIfShiftIsPressed: false,
-  collect: () => ""
+  collect: () => ''
 };
 
 export type TriggerBind = {
@@ -57,7 +57,7 @@ export default function buildUseContextMenuTrigger<T>(
     const config: Config<T> = Object.assign({}, defaultConfig, _config);
     const touchHandled = useRef(false);
     const mouseDownTimeoutId = useRef<number>();
-    const touchstartTimeoutId = useRef<any>();
+    const touchstartTimeoutId = useRef<number>();
 
     const handleContextClick = (event: React.TouchEvent | React.MouseEvent) => {
       if (config.disable) return;
@@ -101,7 +101,7 @@ export default function buildUseContextMenuTrigger<T>(
         event.persist();
         event.stopPropagation();
 
-        touchstartTimeoutId.current = setTimeout(() => {
+        touchstartTimeoutId.current = window.setTimeout(() => {
           handleContextClick(event);
           touchHandled.current = true;
         }, config.holdToDisplay);
