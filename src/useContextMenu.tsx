@@ -4,24 +4,24 @@ import {
   useState,
   useEffect,
   useCallback
-} from 'react';
+} from "react";
 
-import { getMenuPosition, getRTLMenuPosition } from './helpers';
+import { getMenuPosition, getRTLMenuPosition } from "./helpers";
 import buildUseContextMenuTrigger, {
   UseContextMenuTrigger
-} from './buildUseContextMenuTrigger';
+} from "./buildUseContextMenuTrigger";
 
 export type Coords = [number, number];
 
 export type BindMenu = {
   style: React.CSSProperties;
-  ref: React.MutableRefObject<HTMLDivElement | undefined>;
+  ref: React.MutableRefObject<HTMLDivElement | null>;
   role: string;
   tabIndex: number;
 };
 
 export type BindMenuItems = {
-  ref: (el: HTMLElement) => HTMLElement[];
+  ref: (el: HTMLElement | null) => HTMLElement[];
   role: string;
   tabIndex: number;
 };
@@ -29,9 +29,9 @@ export type BindMenuItems = {
 const ESCAPE = 27;
 
 const baseStyles: React.CSSProperties = {
-  position: 'fixed',
+  position: "fixed",
   opacity: 0,
-  pointerEvents: 'none'
+  pointerEvents: "none"
 };
 
 const focusElement = (el: HTMLElement) => el.focus();
@@ -51,7 +51,7 @@ function useContextMenu<T = string>({
     setCoords: (coords: Coords) => void;
   }
 ] {
-  const menuRef = useRef<HTMLDivElement>();
+  const menuRef = useRef<HTMLDivElement>(null);
   const selectables = useRef<HTMLElement[]>([]);
   const [style, setStyles] = useState(baseStyles);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -67,7 +67,7 @@ function useContextMenu<T = string>({
     [setVisible, setCollectedData]
   );
 
-  const markSelectable = (el: HTMLElement) =>
+  const markSelectable = (el: HTMLElement | null) =>
     (selectables.current = el === null ? [] : [...selectables.current, el]);
 
   useEffect(() => {
@@ -102,18 +102,18 @@ function useContextMenu<T = string>({
       }
     };
     if (isVisible) {
-      document.addEventListener('mousedown', handleOutsideClick);
-      document.addEventListener('touchstart', handleOutsideClick);
-      document.addEventListener('scroll', hideMenu);
-      document.addEventListener('contextmenu', hideMenu);
-      document.addEventListener('keydown', handleKeyNavigation);
+      document.addEventListener("mousedown", handleOutsideClick);
+      document.addEventListener("touchstart", handleOutsideClick);
+      document.addEventListener("scroll", hideMenu);
+      document.addEventListener("contextmenu", hideMenu);
+      document.addEventListener("keydown", handleKeyNavigation);
     }
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('touchstart', handleOutsideClick);
-      document.removeEventListener('scroll', hideMenu);
-      document.removeEventListener('contextmenu', hideMenu);
-      document.removeEventListener('keydown', handleKeyNavigation);
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("scroll", hideMenu);
+      document.removeEventListener("contextmenu", hideMenu);
+      document.removeEventListener("keydown", handleKeyNavigation);
     };
   }, [
     menuRef,
@@ -136,23 +136,23 @@ function useContextMenu<T = string>({
         top: `${top}px`,
         left: `${left}px`,
         opacity: 1,
-        pointerEvents: 'auto'
+        pointerEvents: "auto"
       }));
     } else {
       setStyles(baseStyles);
     }
   }, [menuRef, isVisible, coords]);
 
-  const bindMenu: BindMenu = {
+  const bindMenu = {
     style,
     ref: menuRef,
-    role: 'menu',
+    role: "menu",
     tabIndex: -1
   };
 
-  const bindMenuItems: BindMenuItems = {
+  const bindMenuItems = {
     ref: markSelectable,
-    role: 'menuitem',
+    role: "menuitem",
     tabIndex: -1
   };
   return [

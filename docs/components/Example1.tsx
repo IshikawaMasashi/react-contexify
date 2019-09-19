@@ -40,7 +40,7 @@ function Example1() {
   const [bindTrigger] = useContextTrigger({
     collect: () => "Title"
   });
-  const [clickedCmd, setClickedCmd] = useState();
+  const [clickedCmd, setClickedCmd] = useState("");
   const hideMenu = () => setVisible(false);
   return (
     <div className="App">

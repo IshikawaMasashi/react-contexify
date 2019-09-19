@@ -33,20 +33,29 @@ function Menu({
       <p>Enter will trigger an onClick</p>
       <p>Esc will close the menu</p>
       <hr />
-      <p
+      <div
+        className={"menu-item"}
         {...bindMenuItem}
         onFocus={() => console.log("focused")}
         onClick={handleMenuItemClick("first")}
       >
         First command
-      </p>
-      <p {...bindMenuItem} onClick={handleMenuItemClick("second")}>
+      </div>
+      <div
+        className={"menu-item"}
+        {...bindMenuItem}
+        onClick={handleMenuItemClick("second")}
+      >
         Second command
-      </p>
+      </div>
       <hr />
-      <p {...bindMenuItem} onClick={handleMenuItemClick("third")}>
+      <div
+        className={"menu-item"}
+        {...bindMenuItem}
+        onClick={handleMenuItemClick("third")}
+      >
         Third command
-      </p>
+      </div>
     </div>
   );
 }
